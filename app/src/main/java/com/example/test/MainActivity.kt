@@ -11,10 +11,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        GlobalScope.launch(Dispatchers.IO) {
-            val movies = (application as App).movieApi.getMovies()
-            Log.e("Movies", movies.toString())
-        }
 
     }
 
