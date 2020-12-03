@@ -8,6 +8,8 @@ import androidx.paging.PagedList
 import com.example.test.data.datasource.MoviesDataSource
 import com.example.test.data.models.MovieModel
 import com.example.test.data.remote.MovieApi
+import com.example.test.data.utills.mapMovieEntitiesToMode
+import com.example.test.data.utills.mapMovieEntityToModel
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
@@ -18,11 +20,12 @@ class MovieListPresenter(val movieApi: MovieApi) : CoroutineScope{
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
-    fun getMovies(){
-        launch {
-            withContext(Dispatchers.IO){
-                //Log.e("MOvie" , movieApi.getMovies(2).toString())
-            }
+
+
+    fun getSearchMovie(query : String, callback : (List<MovieModel>) -> (Unit)){
+        launch(Dispatchers.IO) {
+            val response = movieApi.searchMovie(query = query)
+            withContext(Dispatchers.Main) { callback.invoke(mapMovieEntitiesToMode(response)) }
         }
     }
 
@@ -43,5 +46,9 @@ class MovieListPresenter(val movieApi: MovieApi) : CoroutineScope{
             .build()
 
         return pagedList
+    }
+
+    fun onClear(){
+        job.cancel()
     }
 }
