@@ -7,7 +7,11 @@ import com.example.test.data.remote.MovieApi
 import com.example.test.data.utills.mapMovieEntitiesToMode
 import kotlinx.coroutines.*
 
-class MoviesDataSource(val movieApi: MovieApi, val coroutineScope: CoroutineScope) : PageKeyedDataSource<Int, MovieModel>() {
+class MoviesDataSource(
+    private val movieApi: MovieApi,
+    private val coroutineScope: CoroutineScope
+) : PageKeyedDataSource<Int, MovieModel>() {
+
     override fun loadInitial(
         params: LoadInitialParams<Int>,
         callback: LoadInitialCallback<Int, MovieModel>

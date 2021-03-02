@@ -9,67 +9,49 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.observe
 import androidx.navigation.findNavController
-import androidx.paging.DataSource
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.test.App
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.test.MainActivity
 import com.example.test.R
 import com.example.test.adapter.MoviesAdapter
 import com.example.test.adapter.SearchAdapter
-import com.example.test.data.datasource.MoviesDataSource
-import com.example.test.data.models.MovieModel
+import com.example.test.databinding.FragmentMovieListBinding
 import com.example.test.ui.details.DetailFragment
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_movie_list.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MovieListFragment : Fragment() {
+class MovieListFragment : Fragment(R.layout.fragment_movie_list) {
     // TODO: Rename and change types of parameters
 
-    lateinit var presenter: MovieListPresenter
+    private val viewModel : MovieListViewModel by viewModel()
+    private val binding by viewBinding(FragmentMovieListBinding::bind)
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_movie_list, container, false)
-    }
 
     @SuppressLint("WrongThread")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val movieApi = ((activity as MainActivity).application as App).movieApi
-        presenter = MovieListPresenter(movieApi)
-        val adapter = MoviesAdapter(activity as MainActivity){
-            view.findNavController().navigate(R.id.detailFragment, DetailFragment.newInstance(it.id))
+
+        val adapter = MoviesAdapter(requireActivity()){
+            findNavController().navigate(R.id.detailFragment, DetailFragment.newInstance(it.id))
         }
-        presenter.getDataSource().observe(viewLifecycleOwner) {
+        viewModel.getDataSource().observe(viewLifecycleOwner){
             adapter.submitList(it)
         }
-        val searchAdapter = SearchAdapter(activity as MainActivity){
-            view.findNavController().navigate(R.id.detailFragment, DetailFragment.newInstance(it.id))
+        val searchAdapter = SearchAdapter(requireActivity()){
+            findNavController().navigate(R.id.detailFragment, DetailFragment.newInstance(it.id))
         }
-        (activity as MainActivity).searct_btn.setOnClickListener {
-            val query = (activity as MainActivity).search_edit_text.text.toString()
+        binding.searctBtn.setOnClickListener {
+            val query = binding.searchEditText.text.toString()
             if(query != ""){
-                presenter.getSearchMovie(query){
+                viewModel.getSearchMovie(query){
                     searchAdapter.setData(it)
-                    movies_recycler.adapter = searchAdapter
+                    binding.moviesRecycler.adapter = searchAdapter
                 }
             }
         }
 
-        movies_recycler.layoutManager = LinearLayoutManager(activity as MainActivity)
-        movies_recycler.adapter = adapter
+        binding.moviesRecycler.layoutManager = LinearLayoutManager(activity as MainActivity)
+        binding.moviesRecycler.adapter = adapter
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        presenter.onClear()
-    }
 }
