@@ -2,14 +2,16 @@ package com.example.test.data.datasource
 
 import androidx.paging.PageKeyedDataSource
 import androidx.paging.PositionalDataSource
+import com.example.test.data.IRepository
+import com.example.test.data.Repository
 import com.example.test.data.models.MovieModel
 import com.example.test.data.remote.MovieApi
 import com.example.test.data.utills.mapMovieEntitiesToMode
 import kotlinx.coroutines.*
 
 class MoviesDataSource(
-    private val movieApi: MovieApi,
-    private val coroutineScope: CoroutineScope
+        private val repository: IRepository,
+        private val coroutineScope: CoroutineScope
 ) : PageKeyedDataSource<Int, MovieModel>() {
 
     override fun loadInitial(
@@ -18,7 +20,7 @@ class MoviesDataSource(
     ) {
         coroutineScope.launch {
             val data = withContext(Dispatchers.IO) {
-                mapMovieEntitiesToMode(movieApi.getMovies())
+                mapMovieEntitiesToMode(repository.getMovies())
             }
             callback.onResult(data, null, 1)
         }
@@ -28,7 +30,7 @@ class MoviesDataSource(
         var page : Int? = params.key + 1
         coroutineScope.launch {
             val data = withContext(Dispatchers.IO) {
-                val response = movieApi.getMovies()
+                val response = repository.getMovies()
                 if (page != null) {
                     if(page!! >= response.total_pages) page = null
                 }
@@ -42,7 +44,7 @@ class MoviesDataSource(
         var page : Int? = params.key - 1
         coroutineScope.launch {
             val data = withContext(Dispatchers.IO) {
-                val response = movieApi.getMovies()
+                val response = repository.getMovies()
                 if (page != null) {
                     if(page!! <= 0) page = null
                 }

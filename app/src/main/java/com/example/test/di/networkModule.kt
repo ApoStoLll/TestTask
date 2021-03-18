@@ -1,5 +1,7 @@
 package com.example.test.di
 
+import com.example.test.data.IRepository
+import com.example.test.data.Repository
 import com.example.test.data.remote.MovieApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -22,6 +24,9 @@ val networkModule = module {
     }
     single {
         provideMovieApiService(get())
+    }
+    single{
+        provideRepository(get())
     }
 }
 
@@ -47,4 +52,8 @@ fun provideRetrofit(url : String, okHttpClient : OkHttpClient): Retrofit {
 
 fun provideMovieApiService(retrofit: Retrofit): MovieApi {
     return retrofit.create(MovieApi::class.java)
+}
+
+fun provideRepository(movieApi: MovieApi) : IRepository{
+    return Repository(movieApi)
 }
